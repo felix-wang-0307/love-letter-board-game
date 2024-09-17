@@ -1,28 +1,24 @@
 # player.py
+
+from user import User
+
 class Player:
-    def __init__(self, player_id, name, connection):
-        self.player_id = player_id
-        self.name = name
+    """
+    Represents a player in the Love Letter game.
+
+    Attributes:
+        user (User): The associated User instance.
+        hand (List[Card]): The player's hand.
+        is_protected (bool): Whether the player is protected.
+        is_active (bool): Whether the player is still active in the game.
+    """
+
+    def __init__(self, user: User):
+        self.user = user
         self.hand = []
-        self.discards = []
-        self.is_protected = False  # 是否是保护的状态（即该轮打出侍女）
-        self.is_alive = True  # 是否存活
-        self.connection = connection  # WebSocket connection
-
-    def draw_card(self, card):
-        self.hand.append(card)
-
-    def play_card(self, card_index):
-        card = self.hand.pop(card_index)
-        card.on_play(self)
-        self.discards.append(card)
-    
-    def start_turn(self):
         self.is_protected = False
-        self.draw_card()
-        self.connection.send(f"Your hand: {self.hand}")
+        self.is_active = True
 
-    def __repr__(self):
-        return f"Player({self.name})"
-
-
+    async def send_message(self, message: dict) -> None:
+        """Sends a message to the player via their User instance."""
+        await self.user.send_message(message)

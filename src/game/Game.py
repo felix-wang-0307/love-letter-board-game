@@ -1,7 +1,6 @@
 # game.py
 from typing import List, Optional
 from player.Player import Player
-from card.CardFactory import create_card
 from deck.Deck import Deck
 
 class Game:
@@ -88,7 +87,7 @@ class Game:
         """
         Initializes and shuffles the deck.
         """
-        self.deck.initialize()
+        self.deck.initialize_classic_deck()
     
     async def initialize(self, last_winners: Optional[List[Player]] = None):
         """Initializes the game."""
@@ -198,3 +197,104 @@ class Game:
         max_value = max([p.hand[0].value for p in active_players])
         winners = [p for p in active_players if p.hand[0].value == max_value]
         return winners
+
+
+# game.py
+
+# ... [rest of your Game class code] ...
+
+if __name__ == "__main__":
+    import asyncio
+
+    # Mock User class (since we're not considering connections)
+    class MockUser:
+        def __init__(self, user_id, name):
+            self.user_id = user_id
+            self.name = name
+
+        async def send_message(self, message):
+            print(f"Message to {self.name}: {message}")
+
+    # Create mock users
+    user1 = MockUser(user_id="1", name="Alice")
+    user2 = MockUser(user_id="2", name="Bob")
+    user3 = MockUser(user_id="3", name="Charlie")
+
+    # Create players from mock users
+    player1 = Player(user=user1)
+    player2 = Player(user=user2)
+    player3 = Player(user=user3)
+
+    # Create a game with the players
+    game = Game(players=[player1, player2, player3])
+
+    # Since we're not running an async event loop in the usual way,
+    # we'll define an async main function and run it with asyncio.
+
+    async def main():
+        # Initialize the game
+        await game.initialize()
+
+        # Simulate turns
+        # For testing, we'll simulate each player's turn manually
+
+        # Turn 1: Alice's turn
+        current_player = game.player_in_turn()
+        if current_player.user.name == "Alice":
+            # Alice's hand should have one card from initialization
+            # Simulate drawing a card
+            if game.deck.cards:
+                card_drawn = game.deck.draw()
+                current_player.hand.append(card_drawn)
+                await current_player.send_message({
+                    "type": "draw_card",
+                    "card_name": card_drawn.name
+                })
+            # Alice decides to play the first card in her hand
+            await game.handle_player_action(
+                player_id=current_player.user.user_id,
+                played_card_index=0,
+                target_info={'target_player_id': player2.user.user_id, 'guessed_card_name': 'Priest'}  # Example target info
+            )
+
+        # Turn 2: Bob's turn
+        current_player = game.player_in_turn()
+        if current_player.user.name == "Bob":
+            # Simulate drawing a card
+            if game.deck.cards:
+                card_drawn = game.deck.draw()
+                current_player.hand.append(card_drawn)
+                await current_player.send_message({
+                    "type": "draw_card",
+                    "card_name": card_drawn.name
+                })
+            # Bob decides to play the first card in his hand
+            await game.handle_player_action(
+                player_id=current_player.user.user_id,
+                played_card_index=0,
+                target_info={'target_player_id': player3.user.user_id}
+            )
+
+        # Turn 3: Charlie's turn
+        current_player = game.player_in_turn()
+        if current_player.user.name == "Charlie":
+            # Simulate drawing a card
+            if game.deck.cards:
+                card_drawn = game.deck.draw()
+                current_player.hand.append(card_drawn)
+                await current_player.send_message({
+                    "type": "draw_card",
+                    "card_name": card_drawn.name
+                })
+            # Charlie decides to play the first card in his hand
+            await game.handle_player_action(
+                player_id=current_player.user.user_id,
+                played_card_index=0,
+                target_info={'target_player_id': player1.user.user_id}
+            )
+
+        # Continue the simulation as needed
+        # You can loop through the players and simulate actions until the game ends
+
+    # Run the async main function
+    asyncio.run(main())

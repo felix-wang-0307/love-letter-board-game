@@ -1,5 +1,6 @@
 # guard.py
 
+from __future__ import annotations
 from card.Card import Card
 from player.Player import Player
 
@@ -40,6 +41,16 @@ class Guard(Card):
                 'type': 'action',
                 'message': f"{player.user.name} tried to guess {target_player.user.name}'s card but they are protected."
             })
+            return
+        
+        # Check if target's hand is assassin
+        if target_player.hand[0].name == 'Assassin':
+            player.is_active = False  # Eliminate the player who guessed
+            await game.notify_players({
+                'type': 'action',
+                'message': f"{player.user.name} tried to guess {target_player.user.name}'s card and be assassinated."
+            })
+            await game.check_end_conditions()
             return
 
         # Check if guess is correct

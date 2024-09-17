@@ -1,6 +1,6 @@
 # priest.py
 
-from card import Card
+from card.Card import Card
 
 class Priest(Card):
     def __init__(self):

@@ -6,7 +6,7 @@ from card.CardFactory import create_card
 random.seed(time())
 
 class Deck:
-    def __init__(self, cards):
+    def __init__(self, cards=[]):
         self.cards = cards
         self.discard_pile = []
     

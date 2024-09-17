@@ -1,7 +1,6 @@
 # priest.py
 
 from card.Card import Card
-from game.Game import Game
 from player.Player import Player
 from typing import Dict, Optional
 
@@ -13,7 +12,7 @@ class King(Card):
             description="Swap hands with another player of your choice."
         )
 
-    async def play(self, game: Game, player: Player, target_info: Dict[str, str]) -> None:
+    async def play(self, game, player: Player, target_info: Dict[str, str]) -> None:
         """
         Allows the player to swap hands with another player of their choice.
 

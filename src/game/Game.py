@@ -12,7 +12,48 @@ class Game:
     def __init__(self, players: List[Player]):
         self.players = players
         self.current_player_index = 0
+        self.deck: Deck = Deck()
         # TODO: Other initialization...
+    
+    def get_player(self, player_id: str) -> Optional[Player]:
+        """
+        Retrieves a player by their user ID.
+
+        Args:
+            player_id (str): The user ID of the player.
+
+        Returns:
+            Optional[Player]: The player if found, else None.
+        """
+        for player in self.players:
+            if player.user.user_id == player_id:
+                return player
+        return None
+
+    async def next_turn(self):
+        """
+        Advances the game to the next player's turn, skipping inactive players.
+        """
+        await self.check_end_conditions()
+        next_player = self.find_next_player(self.player_in_turn())
+        if next_player.is_active:
+            # It's the next player's turn
+            await self.notify_players({
+                "type": "next_turn",
+                "player_id": next_player.user.user_id,
+                "message": f"It's {next_player.user.name}'s turn."
+            })
+            # Draw a card if the deck is not empty
+            if self.deck.cards:
+                card = self.deck.draw()
+                next_player.hand.append(card)
+                await next_player.send_message({
+                    "type": "draw_card",
+                    "card_name": card.name
+                })
+            else:
+                # No cards left to draw
+                pass  # Handle end-of-deck situation if necessary
     
     def player_in_turn(self) -> Player:
         """
@@ -23,31 +64,31 @@ class Game:
         """
         return self.players[self.current_player_index]
 
-    def find_next_player(self, player: Player) -> Player:
+    def find_next_player(self, player: Player) -> Optional[Player]:
         """
-        Finds the next player in the list of players.
+        Finds the next active player in the list of players.
 
         Args:
             player (Player): The current player.
 
         Returns:
-            Player: The next player.
+            Optional[Player]: The next active player, or None if no active players are left.
         """
         index = self.players.index(player)
-        next_index = (index + 1) % len(self.players)
-        return self.players[next_index]
+        num_players = len(self.players)
+        for _ in range(num_players):
+            index = (index + 1) % num_players
+            next_player = self.players[index]
+            if next_player.is_active:
+                return next_player
+        return None  # No active players left
+
 
     def initialize_deck(self):
         """
         Initializes and shuffles the deck.
         """
-        cards = []
-        cards.extend([create_card("Guard") for _ in range(5)])
-        cards.extend([create_card("Priest") for _ in range(2)])
-        # TODO: add other cards based on game rules
-
-        self.deck = Deck(cards)
-        self.deck.shuffle()
+        self.deck.initialize()
     
     async def initialize(self, last_winners: Optional[List[Player]] = None):
         """Initializes the game."""
@@ -55,15 +96,16 @@ class Game:
         self.initialize_deck()
         # Initialize player states
         for player in self.players:
-            player.__init__()
+            player.reset()
             await player.send_message({'type': 'game_start', 'message': 'The game has started!'})
         # Deal cards to players
-        self.deal_cards()
+        await self.deal_cards()
         # Determine who plays first
         if last_winners:
             self.current_player_index = self.players.index(last_winners[0])
         else:
             self.current_player_index = 0
+
 
     async def deal_cards(self) -> None:
         """Starts the game."""
@@ -72,13 +114,20 @@ class Game:
             player.hand.append(card)
             await player.send_message(
                 {
-                    "type": "game_started",
+                    "type": "deal_card",
                     "your_hand": [card.name for card in player.hand],
                 }
             )
 
     async def handle_player_action(self, player_id, played_card_index, target_info):
+        """Handles a player's action in the game."""
         player = self.get_player(player_id)
+        if not player:
+            await player.send_message({'type': 'error', 'message': 'Player not found.'})
+            return
+        if player != self.player_in_turn():
+            await player.send_message({'type': 'error', 'message': 'It is not your turn.'})
+            return
         played_card = player.play_card(played_card_index)
         self.deck.discard(played_card)
 

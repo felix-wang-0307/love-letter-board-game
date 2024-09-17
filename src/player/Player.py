@@ -1,7 +1,7 @@
 # player.py
 
-from user import User
-
+from user.User import User
+from card.Card import Card
 class Player:
     """
     Represents a player in the Love Letter game.
@@ -26,6 +26,18 @@ class Player:
         self.jester_object: Player = None  # Who played the Jester on this player
         self.comet_played: int = 0  # Number of times the player has played a comet 
         self.score: int = 0
+
+    def reset(self):
+        """
+        Resets the player's state for a new round.
+        """
+        self.hand = []
+        self.is_protected = False
+        self.is_active = True
+        self.has_played_constable = False
+        self.jester_object = None
+        self.comet_played = 0
+        # Do not reset 'score' as it accumulates over rounds
     
     def hand_value(self) -> int:
         """Returns the value of the player's hand."""
@@ -45,7 +57,27 @@ class Player:
         """Handles score changes when the player loses a turn."""
         if self.has_played_constable:
             self.score += 1
+    def play_card(self, card_index: int) -> Card:
+        """
+        Plays a card from the player's hand.
+
+        Args:
+            card_index (int): The index of the card in the player's hand.
+
+        Returns:
+            Card: The card that was played.
+
+        Raises:
+            ValueError: If the card index is invalid.
+        """
+        if 0 <= card_index < len(self.hand):
+            return self.hand.pop(card_index)
+        else:
+            raise ValueError("Invalid card index")
+
 
     async def send_message(self, message: dict) -> None:
         """Sends a message to the player via their User instance."""
         await self.user.send_message(message)
+    
+    

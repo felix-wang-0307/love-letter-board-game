@@ -28,3 +28,19 @@ class Game:
         for player in self.players:
             if player.user.user_id not in exclude_player_ids:
                 await player.send_message(message)
+
+    async def check_end_conditions(self):
+        """
+        Checks if the round has ended and handles the outcome.
+        """
+        active_players = [p for p in self.players if p.is_active]
+        if len(active_players) <= 1 or not self.deck.cards:
+            # Round ends
+            winner = self.determine_winner()
+            await self.notify_players({
+                'type': 'round_end',
+                'message': f"The round has ended. {winner.user.name} wins the round!",
+                'winner_id': winner.user.user_id
+            })
+            # Prepare for next round or end game
+            await self.prepare_next_round()

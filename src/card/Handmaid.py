@@ -1,4 +1,4 @@
-from Card import Card
+from card.Card import Card
 from player.Player import Player
 
 class Handmaid (Card):

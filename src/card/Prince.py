@@ -1,4 +1,4 @@
-from Card import Card
+from card.Card import Card
 from player.Player import Player
 
 class Prince (Card):
@@ -9,7 +9,7 @@ class Prince (Card):
         target_player_id = target_info.get('target_player_id')
         target_player: Player = game.get_player(target_player_id)
         if not target_player or not target_player.is_active:
-            player.send_message({'type': 'error', 'message': 'Invalid target player.'})
+            await player.send_message({'type': 'error', 'message': 'Invalid target player.'})
             return
         
         if target_player.is_protected:

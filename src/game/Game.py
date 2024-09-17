@@ -10,6 +10,7 @@ class Game:
 
     def __init__(self, players: List[Player]):
         self.players = players
+        self.ongoing = False
         self.current_player_index = 0
         self.deck: Deck = Deck()
         # TODO: Other initialization...
@@ -29,12 +30,13 @@ class Game:
                 return player
         return None
 
-    async def next_turn(self):
+    async def next_turn(self, player_for_turn: Optional[Player] = None):
         """
         Advances the game to the next player's turn, skipping inactive players.
         """
         await self.check_end_conditions()
-        next_player = self.find_next_player(self.player_in_turn())
+        next_player = player_for_turn if player_for_turn else self.find_next_player(self.player_in_turn())
+        print("FUCK FUCK FUCK, next turn for", next_player.user.name)
         if next_player.is_active:
             # It's the next player's turn
             await self.notify_players({
@@ -79,6 +81,7 @@ class Game:
             index = (index + 1) % num_players
             next_player = self.players[index]
             if next_player.is_active:
+                self.current_player_index = index
                 return next_player
         return None  # No active players left
 
@@ -104,6 +107,8 @@ class Game:
             self.current_player_index = self.players.index(last_winners[0])
         else:
             self.current_player_index = 0
+        await self.next_turn(player_for_turn=self.player_in_turn())
+        self.ongoing = True
 
 
     async def deal_cards(self) -> None:
@@ -127,6 +132,7 @@ class Game:
             await player.send_message({'type': 'error', 'message': 'It is not your turn.'})
             return
         not_played_card_index = 1 - played_card_index
+        print(f"Player {player.user.name} played card {player.hand[played_card_index].name}")
         not_played_card = player.hand[not_played_card_index]
         if not_played_card.name == "Countess" and (player.hand[played_card_index].name in ["King", "Prince"]):
             await player.send_message({'type': 'error', 'message': 'You must play the Countess when you have a King or Prince.'})
@@ -190,6 +196,8 @@ class Game:
             )
             # Prepare for next round or end game
             await self.prepare_next_round(winners)
+            self.ongoing = False
+        self.ongoing = True
 
     async def determine_winner(self) -> List[Player]:
         """Logic to determine the winner"""

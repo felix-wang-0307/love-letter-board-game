@@ -80,19 +80,21 @@ if __name__ == "__main__":
 
     # Mock User class (since we're not considering connections)
     class MockUser:
-        def __init__(self, user_id, name):
+        def __init__(self, user_id, name, print_message=True):
             self.user_id = user_id
             self.name = name
+            self.print_message = print_message
             self.messages = []
 
         async def send_message(self, message):
-            print(f"Message to {self.name}: {message}")
+            if self.print_message:
+                print(f"Message to {self.name}: {message}")
             self.messages.append(message)
         
     # Create mock users
     user1 = MockUser(user_id="1", name="Alice")
-    user2 = MockUser(user_id="2", name="Bob")
-    user3 = MockUser(user_id="3", name="Charlie")
+    user2 = MockUser(user_id="2", name="Bob", print_message=False)
+    user3 = MockUser(user_id="3", name="Charlie", print_message=False)
 
     # Create players from mock users
     player1 = Player(user=user1)
@@ -119,12 +121,12 @@ if __name__ == "__main__":
 
             target_info = {}
         
-            if played_card.name in ["Guard", "Baron", "Priest", "King"]:
+            if played_card.name in ["Guard", "Baron", "Priest", "King", "Prince"]:
                 target_player_id = input("Enter the target player ID: ")
                 target_info['target_player_id'] = target_player_id
                 if played_card.name == "Guard":
                     target_card_value = input("Enter the card value to guess: ")
-                    target_info['target_card_value'] = target_card_value
+                    target_info['guessed_value'] = target_card_value
 
 
             # Player plays the card
@@ -139,9 +141,6 @@ if __name__ == "__main__":
                 winners = game.determine_winner()
                 print(f"Game ended. Winner(s): {[p.user.name for p in winners]}")
                 break
-            
-            await game.next_turn()
-
         # After the game ends, you can inspect scores or start a new round
 
     # Run the async main function

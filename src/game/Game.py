@@ -36,7 +36,6 @@ class Game:
         """
         await self.check_end_conditions()
         next_player = player_for_turn if player_for_turn else self.find_next_player(self.player_in_turn())
-        print("FUCK FUCK FUCK, next turn for", next_player.user.name)
         if next_player.is_active:
             # It's the next player's turn
             await self.notify_players({
@@ -142,14 +141,14 @@ class Game:
         self.deck.discard(played_card)
 
         # Notify all players about the card played
-        await self.notify_players(
-            {
-                "type": "card_played",
-                "message": f"{player.user.name} played {played_card.name}.",
-                "player_id": player_id,
-                "card_name": played_card.name,
-            }
-        )
+        # await self.notify_players(
+        #     {
+        #         "type": "card_played",
+        #         "message": f"{player.user.name} played {played_card.name}.",
+        #         "player_id": player_id,
+        #         "card_name": played_card.name,
+        #     }
+        # )
 
         # Execute the card's effect
         await played_card.play(self, player, target_info)

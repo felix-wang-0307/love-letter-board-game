@@ -71,3 +71,5 @@ class Deck:
     def discard(self, card):
         self.discard_pile.append(card)
 
+    def is_empty(self):
+        return not self.cards

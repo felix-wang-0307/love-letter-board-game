@@ -32,7 +32,8 @@ class King(Card):
         # Check if target is protected
         if target_player.is_protected:
             await game.notify_players({
-                'type': 'action',
+                'type': 'play_card',
+                'target': target_player.user.user_id,
                 'message': f"{player.user.name} tried to swap hands with {target_player.user.name} but they are protected."
             })
             return
@@ -41,6 +42,7 @@ class King(Card):
         player.hand, target_player.hand = target_player.hand, player.hand
 
         await game.notify_players({
-            'type': 'action',
+            'type': 'play_card',
+            'target': target_player.user.user_id,
             'message': f"{player.user.name} swapped hands with {target_player.user.name}."
         })

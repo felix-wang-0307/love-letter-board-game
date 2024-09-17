@@ -38,7 +38,8 @@ class Guard(Card):
         # Check if target is protected
         if target_player.is_protected:
             await game.notify_players({
-                'type': 'action',
+                'type': 'play_card',
+                'target': target_player.user.user_id,
                 'message': f"{player.user.name} tried to guess {target_player.user.name}'s card but they are protected."
             })
             return
@@ -47,7 +48,8 @@ class Guard(Card):
         if target_player.hand[0].name == 'Assassin':
             player.is_active = False  # Eliminate the player who guessed
             await game.notify_players({
-                'type': 'action',
+                'type': 'play_card',
+                'target': target_player.user.user_id,
                 'message': f"{player.user.name} tried to guess {target_player.user.name}'s card and be assassinated."
             })
             await game.check_end_conditions()
@@ -67,6 +69,7 @@ class Guard(Card):
             await game.check_end_conditions()
         else:
             await game.notify_players({
-                'type': 'action',
+                'type': 'play_card',
+                'target': target_player.user.user_id,
                 'message': f"{player.user.name} guessed incorrectly."
             })

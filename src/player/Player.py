@@ -57,6 +57,7 @@ class Player:
         """Handles score changes when the player loses a turn."""
         if self.has_played_constable:
             self.score += 1
+
     def play_card(self, card_index: int) -> Card:
         """
         Plays a card from the player's hand.
@@ -74,7 +75,15 @@ class Player:
             return self.hand.pop(card_index)
         else:
             raise ValueError("Invalid card index")
+    
+    def draw_card(self, card: Card) -> None:
+        """
+        Adds a card to the player's hand.
 
+        Args:
+            card (Card): The card to add to the player's hand.
+        """
+        self.hand.append(card)
 
     async def send_message(self, message: dict) -> None:
         """Sends a message to the player via their User instance."""

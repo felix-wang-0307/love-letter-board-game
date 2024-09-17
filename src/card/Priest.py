@@ -30,7 +30,8 @@ class Priest(Card):
         # Check if target is protected
         if target_player.is_protected:
             await game.notify_players({
-                'type': 'action',
+                'type': 'play_card',
+                'target': target_player.user.user_id,
                 'message': f"{player.user.name} tried to look at {target_player.user.name}'s hand but they are protected."
             })
             return
@@ -43,6 +44,7 @@ class Priest(Card):
         })
 
         await game.notify_players({
-            'type': 'action',
+            'type': 'play_card',
+            'target': target_player.user.user_id,
             'message': f"{player.user.name} looked at {target_player.user.name}'s hand."
         }, exclude_player_ids={player.user.user_id})

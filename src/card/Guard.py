@@ -62,7 +62,7 @@ class Guard(Card):
             target_player.is_active = False
             await game.notify_players({
                 'type': 'player_eliminated',
-                'message': f"{player.user.name} guessed correctly! {target_player.user.name} is eliminated.",
+                'message': f"{player.user.name} guessed {target_player.user.name}'s card as {guessed_value} correctly! {target_player.user.name} is eliminated.",
                 'player_id': target_player.user.user_id
             })
             # Check for end of round
@@ -71,5 +71,5 @@ class Guard(Card):
             await game.notify_players({
                 'type': 'play_card',
                 'target': target_player.user.user_id,
-                'message': f"{player.user.name} guessed incorrectly."
+                'message': f"{player.user.name} guessed {target_player.user.name}'s card as {guessed_value}, but they guessed incorrectly."
             })

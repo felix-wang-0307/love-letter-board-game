@@ -29,6 +29,21 @@ class Game:
             if player.user.user_id == player_id:
                 return player
         return None
+    
+    def get_player_id_by_name(self, name: str) -> Optional[str]:
+        """
+        Retrieves a player's ID by their name.
+
+        Args:
+            name (str): The name of the player.
+
+        Returns:
+            Optional[str]: The player's ID if found, else None.
+        """
+        for player in self.players:
+            if player.user.name == name:
+                return player.user.user_id
+        return None
 
     async def next_turn(self, player_for_turn: Optional[Player] = None):
         """
@@ -43,6 +58,8 @@ class Game:
                 "player_id": next_player.user.user_id,
                 "message": f"It's {next_player.user.name}'s turn."
             })
+            # Deactivate protection
+            next_player.is_protected = False
             # Draw a card if the deck is not empty
             if self.deck.cards:
                 card = self.deck.draw()
@@ -131,7 +148,7 @@ class Game:
             await player.send_message({'type': 'error', 'message': 'It is not your turn.'})
             return
         not_played_card_index = 1 - played_card_index
-        print(f"Player {player.user.name} played card {player.hand[played_card_index].name}")
+        # print(f"Player {player.user.name} played card {player.hand[played_card_index].name}")
         not_played_card = player.hand[not_played_card_index]
         if not_played_card.name == "Countess" and (player.hand[played_card_index].name in ["King", "Prince"]):
             await player.send_message({'type': 'error', 'message': 'You must play the Countess when you have a King or Prince.'})

@@ -36,7 +36,7 @@ class Guard(Card):
         # Cannot guess Guard
         if guessed_value == 1:
             await player.send_message(
-                {"type": "error", "message": "You cannot guess Guard."}
+                {"type": "error", "message": "You cannot guess 1."}
             )
             return
 
@@ -68,7 +68,7 @@ class Guard(Card):
 
         # Check if guess is correct
         target_card = target_player.hand[0]
-        if target_card.value == guessed_value:
+        if target_card.value == int(guessed_value):
             # Eliminate the target player
             target_player.is_active = False
             await game.notify_players(

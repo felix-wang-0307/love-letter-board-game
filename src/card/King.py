@@ -62,3 +62,11 @@ class King(Card):
                 "message": f"You swapped hands with {target_player.user.name} and got a {player.hand}.",
             }
         )
+
+        await target_player.send_message(
+            {
+                "type": "private_info",
+                "message": f"You swapped hands with {player.user.name} and got a {target_player.hand}.",
+            }
+        )
+        

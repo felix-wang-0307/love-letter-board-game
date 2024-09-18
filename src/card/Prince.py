@@ -60,7 +60,7 @@ class Prince(Card):
             )
             return
 
-        target_player.hand = []  # Discard hand
+        discarded_card = target_player.hand.pop()
         card = game.deck.draw()
         target_player.draw_card(card)
 
@@ -69,6 +69,13 @@ class Prince(Card):
                 "type": "play_card",
                 "card": self.__repr__(),
                 "target": target_player.user.user_id,
-                "message": f"{player.user.name} made {target_player.user.name} discard their hand and draw a new card.",
+                "message": f"{player.user.name} made {target_player.user.name} discard their {discarded_card.__repr__()} and draw a new card.",
+            }
+        )
+
+        await target_player.send_message(
+            {
+                "type": "private_info",
+                "message": f"You discarded your {discarded_card.__repr__()} and drew a {card.__repr__()}.",
             }
         )

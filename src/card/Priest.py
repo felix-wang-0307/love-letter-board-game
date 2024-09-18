@@ -45,7 +45,7 @@ class Priest(Card):
         await player.send_message(
             {
                 "type": "private_info",
-                "message": f"{target_player.user.name}'s card is {target_card.value}-{target_card.name}.",
+                "message": f"{target_player.user.name}'s card is {target_card.__repr__()}.",
             }
         )
 

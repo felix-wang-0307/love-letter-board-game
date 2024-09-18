@@ -78,6 +78,12 @@ if __name__ == "__main__":
     # simulate the frontend connection and message sending
     import asyncio
 
+    id_to_name = {
+        "1": "orange",
+        "2": "muqiu",
+        "3": "67",
+    }
+
     # Mock User class (since we're not considering connections)
     class MockUser:
         def __init__(self, user_id, name, print_message=True):
@@ -88,13 +94,25 @@ if __name__ == "__main__":
 
         async def send_message(self, message):
             if self.print_message:
-                print(f"Message to {self.name}: {message}")
+                print(f"玩家{self.name}收到消息: ")
+                if message.get('type') == 'error':
+                    print(f"错误: {message.get('message')}")
+                elif message.get('type') == 'player_eliminated':
+                    player_name = id_to_name[message.get('player_id')]
+                    print(f"{player_name}寄了: {message.get('message')}")
+                elif message.get('type') == 'play_card':
+                    player_name = id_to_name[message.get('target')]
+                    print(f"打了一张{message.get('card')}给{player_name}")
+                    print(f"消息: {message.get('message')}")
+                else:
+                    print(message)
+
             self.messages.append(message)
         
     # Create mock users
-    user1 = MockUser(user_id="1", name="Alice")
-    user2 = MockUser(user_id="2", name="Bob", print_message=False)
-    user3 = MockUser(user_id="3", name="Charlie", print_message=False)
+    user1 = MockUser(user_id="1", name="orange")
+    user2 = MockUser(user_id="2", name="muqiu", print_message=False)
+    user3 = MockUser(user_id="3", name="67", print_message=False)
 
     # Create players from mock users
     player1 = Player(user=user1)
@@ -107,25 +125,27 @@ if __name__ == "__main__":
     async def main():
         # Initialize the game
         await game.initialize()
+        print("玩家列表: ", [p.user.name for p in game.players])
 
         # Simulate the game loop
         game.ongoing = True
         while game.ongoing:
             current_player = game.player_in_turn()
-            print(f"\nCurrent player: {current_player.user.name}")
-            print(f"Hand: {[card.name for card in current_player.hand]}")
+            print(f"\n当前玩家: {current_player.user.name}")
+            print(f"嫩的手牌: {[card.__repr__() for card in current_player.hand]}")
             
             # Get player input for the card to play
-            played_card_index = int(input("Enter the index of the card to play: "))
+            played_card_index = int(input("打第几张牌[输入0或1]: "))
             played_card = current_player.hand[played_card_index]
 
             target_info = {}
         
             if played_card.name in ["Guard", "Baron", "Priest", "King", "Prince"]:
-                target_player_id = input("Enter the target player ID: ")
+                target_player_name = input("对谁使用[输入用户名]: ")
+                target_player_id = game.get_player_id_by_name(target_player_name)
                 target_info['target_player_id'] = target_player_id
                 if played_card.name == "Guard":
-                    target_card_value = input("Enter the card value to guess: ")
+                    target_card_value = input("嫩猜什么幌子[输入0-9的数字]: ")
                     target_info['guessed_value'] = target_card_value
 
 
